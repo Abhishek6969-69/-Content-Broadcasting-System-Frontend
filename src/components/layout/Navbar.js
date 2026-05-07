@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, LayoutDashboard, FileUp, ListVideo, MonitorPlay, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function Navbar() {
+export default function Navbar({ isOpen, setIsOpen }) {
   const { user, logout } = useAuth();
   const pathname = usePathname();
 
@@ -28,7 +28,12 @@ export default function Navbar() {
   const links = user.role === "TEACHER" ? teacherLinks : principalLinks;
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0">
+    <div 
+      className={cn(
+        "w-64 bg-white border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-40 transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}
+    >
       <div className="p-6 border-b border-slate-100 flex items-center justify-between">
         <h1 className="font-bold text-xl text-slate-800 tracking-tight">EduCast</h1>
       </div>
@@ -43,7 +48,7 @@ export default function Navbar() {
           const Icon = link.icon;
           const isActive = pathname === link.href;
           return (
-            <Link key={link.href} href={link.href}>
+            <Link key={link.href} href={link.href} onClick={() => setIsOpen && setIsOpen(false)}>
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
@@ -59,7 +64,7 @@ export default function Navbar() {
           );
         })}
         {user.role === "TEACHER" && (
-           <Link href={`/live/${user.id}`} target="_blank">
+           <Link href={`/live/${user.id}`} target="_blank" onClick={() => setIsOpen && setIsOpen(false)}>
              <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors mt-2">
                <MonitorPlay className="w-5 h-5 text-slate-400" />
                Public Live Page
