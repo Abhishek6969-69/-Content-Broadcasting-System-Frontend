@@ -1,0 +1,37 @@
+Frontend Technical Assignment Notes
+
+1. Project Structure
+The application follows a clean, scalable Next.js App Router structure:
+- `src/app`: Contains Next.js file-based routing. App uses `/login`, `/teacher/*`, `/principal/*`, and `/live/[teacherId]`.
+- `src/components/ui`: Houses reusable shadcn/ui and Tailwind CSS components.
+- `src/components/layout`: Contains layout components like Navbar and AppLayout.
+- `src/context`: Houses the AuthContext to manage global authentication state.
+- `src/services`: Contains the service layer for handling "API" requests (auth.service.js, content.service.js, approval.service.js).
+- `src/utils`: Contains utility files, specifically mockDb.js for simulating backend interactions.
+
+2. Authentication Flow
+- The application uses a mock authentication approach with hardcoded credentials for demo purposes.
+- Upon successful login via `auth.service.js`, a mock Base64 token is generated and stored in `localStorage`.
+- The `AuthContext` retrieves this token on load, decodes the user information, and makes it available globally.
+
+3. Role-Based Routing
+- Access control is managed primarily in `AuthContext.js` and layout files.
+- The `AuthContext` acts as a route guard. If a user tries to access `/teacher/*` with a PRINCIPAL role, they are redirected to `/principal/dashboard`. Unauthenticated users are redirected to `/login` (except for the public `/live` route).
+- Layout files (`src/app/teacher/layout.js`, `src/app/principal/layout.js`) double-check the role before rendering the dashboard frame.
+
+4. API Integration Approach
+- All API interactions are strictly abstracted behind the `services/` layer. Components NEVER make direct API calls or direct DB accesses.
+- Since a real backend is not provided, the services use `localStorage` as a mock database (`mockDb.js`) to persist state across reloads.
+- The services use async/await and simulate network latency (`delay()`) to mimic a real environment.
+- Components use standard loading and error states to gracefully handle these async promises without breaking the UI.
+
+5. State Management Approach
+- Global State: `AuthContext` is used to store and distribute the current authenticated user globally.
+- Server State / Data Fetching: Fetched using React `useEffect` inside components and maintained locally via `useState`. In a real production app, TanStack React Query would be preferable, but for this scale, React state handles the mock service cleanly.
+- Form State: Handled robustly using `react-hook-form` integrated with `zod` schema validation for clean error messages and optimized re-renders.
+
+6. Assumptions
+- File Uploads: Since there's no real backend, the uploaded file object is kept purely in memory or mocked as a JSON object with its name and size. File previews are generated locally using `URL.createObjectURL`. The system does not actually persist the binary data across reloads.
+- Timezone: Start and End times are captured as local times using standard HTML `datetime-local` inputs and parsed into standard JS Dates for comparison.
+- Polling for Live Page: Auto-refresh on the `/live` public page is simulated via `setInterval` refreshing every 30 seconds.
+- Role Limitation: There is only one teacher and one principal in the mock DB. Multi-tenant relationships (which teacher belongs to which principal) are assumed as a flat system where the principal sees all content.
